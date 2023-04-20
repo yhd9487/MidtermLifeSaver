@@ -34,10 +34,3 @@ while True:
                 print(remaining_size)
 
         print("File saved successfully")
-
-        # # 接收over消息并关闭连接
-        # over_msg = conn.recv(4096)
-        # if over_msg.strip() == b"over":
-        #     conn.close()
-        #     break
-        # print("Connection closed")
