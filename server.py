@@ -15,23 +15,29 @@ while True:
     print(f"[+] received a connection from -> {addr}")
 
     while True:
-        file_info = conn.recv(4096).decode().replace("\r\n", "|").replace("\n", "|").strip().split("|")
-        if not file_info:
-            break
-        if len(file_info) < 2:
-            continue  # 如果 file_info 列表中元素不足两个，说明格式不正确，跳过本次循环
+        file_info = conn.recv(1048576).decode().replace("\r\n", "|").replace("\n", "|").strip().split("|")
+        print(file_info)
+        # if len(file_info) < 2:
+        #     continue  # 如果 file_info 列表中元素不足两个，说明格式不正确，跳过本次循环
+        print(file_info[0], int(file_info[1]))
         file_name, file_size = file_info[0], int(file_info[1])
         print(f"Received file {file_name} ({file_size} bytes)")
 
         with open(file_name, "wb") as f:
             remaining_size = file_size
             while remaining_size > 0:
-                data_size = min(1024, remaining_size)
+                data_size = min(1048576, remaining_size)
                 data = conn.recv(data_size)
+                print(data)
                 f.write(data)
                 remaining_size -= len(data)
+                print(remaining_size)
 
         print("File saved successfully")
 
-    conn.close()
-    print("Connection closed")
+        # # 接收over消息并关闭连接
+        # over_msg = conn.recv(4096)
+        # if over_msg.strip() == b"over":
+        #     conn.close()
+        #     break
+        # print("Connection closed")
