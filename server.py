@@ -1,5 +1,4 @@
 import socket
-import base64
 
 HOST = '192.168.1.14'
 PORT = 9587
