@@ -16,8 +16,6 @@ while True:
     while True:
         file_info = conn.recv(1048576).decode().replace("\r\n", "|").replace("\n", "|").strip().split("|")
         print(file_info)
-        # if len(file_info) < 2:
-        #     continue  # 如果 file_info 列表中元素不足两个，说明格式不正确，跳过本次循环
         print(file_info[0], int(file_info[1]))
         file_name, file_size = file_info[0], int(file_info[1])
         print(f"Received file {file_name} ({file_size} bytes)")
