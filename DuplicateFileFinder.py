@@ -1,5 +1,5 @@
 import hashlib
-import base64Codec
+import base64
 import time
 import os
 
