@@ -32,7 +32,7 @@ def main():
         # Start of Parent process
 
         # Specify the folder path for duplicate check.
-        folder = r'C:\Users'
+        folder = r'C:\Users\YHD\Documents\PycharmProjects\MidtermLifeSaver'
         # Traverse all files in the specified folder
         for dirpath, dirnames, filenames in os.walk(folder):
             # Traverse all files in the current folder
@@ -42,12 +42,9 @@ def main():
 
         # Open each file and compute its hash value
         with open(file_path, 'rb') as f:
-            file_hash = hashlib.sha1(f.read()).hexdigest()
-            print(file_hash)
 
             # Define a dictionary to store file hash values and corresponding file paths
             hash_dict = {}
-
             # Traverse all files in the specified folder again and compute and compare the hash values of each file
             for dirpath, dirnames, filenames in os.walk(folder):
                 # Traverse all files in the current folder
